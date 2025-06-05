@@ -1,12 +1,9 @@
-import h5py
 from line_profiler import profile
 from torch.utils.data import Dataset
 import torch
 from torch import nn
-from PIL import Image
-import io
-import numpy as np
 from torchvision.transforms import v2
+from random import randrange
 
 # --- Constants for Patching ---
 IMAGE_PREPROCESSED_SIZE = 256
@@ -79,30 +76,21 @@ class ImageNetPatchDataset(Dataset):
                 f"ImageNetPatchDataset split argument expected to be one of {VALID_SPLITS}, got {split}"
             )
 
-        # new_hf_dataset = []
-        # for i, x in enumerate(hf_dataset):
-        #     new_hf_dataset.append(x)
-        #     if i >= 1000:
-        #         break
-        # self.hf_dataset = hf_dataset
         self.hdf5_dataset = hdf5_dataset
         self.split = split
         self.split_labels = f"{split}-labels"
-        # test = h5_images[1]
-        # print(test)
-        # self.h5_images = h5_images
-        # self.h5_labels = h5_labels
         self.num_original_images = len(self.hdf5_dataset[split])
 
     def __len__(self):
-        # return self.num_original_images * PATCHES_PER_ORIGINAL_IMAGE
         return self.num_original_images
 
     # @profile
     def __getitem__(self, idx):
         # Calculate which original image and which patch within that image to get
         original_image_idx = idx // PATCHES_PER_ORIGINAL_IMAGE
-        patch_idx_within_image = idx % PATCHES_PER_ORIGINAL_IMAGE
+        patch_idx_within_image = randrange(
+            PATCHES_PER_ORIGINAL_IMAGE
+        )  # Randomly select one Patch from the image
 
         original_image = torch.from_numpy(
             self.hdf5_dataset[self.split][original_image_idx]
@@ -111,10 +99,7 @@ class ImageNetPatchDataset(Dataset):
 
         selected_patch = get_single_patch(original_image, patch_idx_within_image)
 
-        label = nn.functional.one_hot(
-            torch.tensor(original_label, dtype=torch.long), num_classes=NUM_CLASSES
-        ).float()
-        return selected_patch, label
+        return selected_patch, torch.tensor(original_label, dtype=torch.long)
 
 
 class ImageNetHuggingFaceDataset(Dataset):
