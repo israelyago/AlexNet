@@ -35,7 +35,7 @@ dataset
 1. Start a local MLflow server inside a container:
 
     ```bash
-    podman run -d -p 5000:5000 -v ./mlruns:/mlflow/mlruns mlflow/mlflow mlflow server --backend-store-uri /mlflow/mlruns --default-artifact-root /mlflow/mlruns --host 0.0.0.0
+    podman run -d -p 5000:5000 -v ./mlruns:/mlflow/mlruns ghcr.io/mlflow/mlflow mlflow server --backend-store-uri /mlflow/mlruns --default-artifact-root /mlflow/mlruns --host 0.0.0.0
     ```
 
 Then:
