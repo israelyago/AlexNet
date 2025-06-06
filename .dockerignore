@@ -2,7 +2,6 @@ dataset
 logs
 artifacts
 **/__pycache__
-mlruns/**
-!mlruns/.gitkeep
+mlruns
 .env
 .venv

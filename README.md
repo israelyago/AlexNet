@@ -28,27 +28,31 @@ dataset
 └── imagenet_1k_256x256_float32.h5
 ```
 
-## Running locally with conda/mamba
-
-1. Create a `.env` file inside the root of this project, and define the ENV variable:
-    - HF_HOME="~/.cache/huggingface" (Or your preferred location to store the HuggingFace cache)
+## Running locally with pip
+1. Run `python -m venv .venv`
+1. Activate the virtual environment with `source .venv/bin/activate`
+1. Install pip dependencies `pip install -r requirements.txt`
 1. Start a local MLflow server inside a container:
 
     ```bash
     podman run -d -p 5000:5000 -v ./mlruns:/mlflow/mlruns ghcr.io/mlflow/mlflow mlflow server --backend-store-uri /mlflow/mlruns --default-artifact-root /mlflow/mlruns --host 0.0.0.0
     ```
-
-Then:
-
-1. Create a new conda/mamba env: `mamba env create -n alex-net -f environment.yaml`
-1. Activate the environment with `mamba activate alex-net`
 1. Run `python src/main.py` to train the model
 
-Monitor the training with MLflow
+## Running locally with Podman/Docker
+1. Build the image: `podman build -t alex-net:local .`
+1. Example of run command (Adjust to your GPU config):
+    ```bash
+    podman run \
+    -v "YOUR_DATASET_DIR":/app/dataset \
+    -e DATASET_FILE_DIR="/app/dataset/imagenet_1k_256x256_float32.h5" \
+    --device nvidia.com/gpu=all \
+    --shm-size=512m \
+    alex-net:local
+    ```
 
 ## Development
 
-When changing the dependencies of mamba:
+When changing the dependencies of pip:
 
-1. Run: `mamba env export --from-history > environment.yaml`
-1. Edit `environment.yaml` (Remove the prefix field and change the name field to "base")
+1. Run: `pip freeze > requirements.txt`

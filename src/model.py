@@ -7,7 +7,7 @@ from torchmetrics.classification import (
     MulticlassAccuracy,
     MulticlassPrecision,
 )
-from line_profiler import profile
+# from line_profiler import profile
 
 NUM_CLASSES = 1000
 

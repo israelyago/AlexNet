@@ -4,9 +4,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-if os.getenv("HF_HOME") is None:
-    print("HuggingFace HF_HOME environment variable not set.")
+if os.getenv("DATASET_FILE_DIR") is None:
+    print("DATASET_FILE_DIR environment variable not set.")
     sys.exit(1)
+
+if os.getenv("MLFLOW_URI") is None:
+    print("MLFLOW_URI environment variable not set.")
+    sys.exit(1)
+
 import mlflow
 import lightning as L
 from lightning.pytorch.callbacks import ModelCheckpoint
@@ -25,8 +30,8 @@ logger = logs.get_logger("train")
 
 current_directory = Path.cwd()
 
-H5_DATASET_PATH = "dataset/imagenet_1k_256x256_float32-8.h5"
-MLFLOW_URI = "http://127.0.0.1:5000"
+H5_DATASET_PATH = Path(os.getenv("DATASET_FILE_DIR"))
+MLFLOW_URI = os.getenv("MLFLOW_URI")
 MLFLOW_EXPERIMENT_NAME = "AlexNet"
 SAVE_MODEL_DIR = "artifacts"
 
@@ -48,7 +53,7 @@ hdf5 = h5py.File(H5_DATASET_PATH, "r")
 train_dataloader = DataLoader(
     ImageNetPatchDataset(hdf5, "train"),
     batch_size=config["batch_size"],
-    num_workers=os.cpu_count() // 3,
+    num_workers=2,
     shuffle=True,
     pin_memory=True,
     # prefetch_factor=2,
@@ -58,7 +63,7 @@ train_dataloader = DataLoader(
 val_dataloader = DataLoader(
     ImageNetPatchDataset(hdf5, "validation"),
     batch_size=config["batch_size"],
-    num_workers=os.cpu_count() // 3,
+    num_workers=2,
     shuffle=False,
     pin_memory=True,
     # prefetch_factor=2,
